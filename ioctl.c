@@ -21,30 +21,6 @@ struct tcp_keepalive {
 #define SIO_KEEPALIVE_VALS _WSAIOW(IOC_VENDOR,4)
 #endif /* _MSTCPIP_ */
 
-#ifdef MS_WINDOWS
-typedef SOCKET SOCKET_T;
-#       ifdef MS_WIN64
-#               define SIZEOF_SOCKET_T 8
-#       else
-#               define SIZEOF_SOCKET_T 4
-#       endif
-#else
-typedef int SOCKET_T;
-#       define SIZEOF_SOCKET_T SIZEOF_INT
-#endif
-typedef int64_t _PyTime_t;
-typedef struct {
-	PyObject_HEAD
-	SOCKET_T sock_fd;           /* Socket file descriptor */
-	int sock_family;            /* Address family, e.g., AF_INET */
-	int sock_type;              /* Socket type, e.g., SOCK_STREAM */
-	int sock_proto;             /* Protocol type, usually 0 */
-	PyObject *(*errorhandler)(void); /* Error handler; checks
-									 errno, returns NULL and
-									 sets a Python exception */
-	_PyTime_t sock_timeout;     /* Operation timeout in seconds;
-								0.0 means non-blocking */
-} PySocketSockObject;
 
 
 static PyObject *
@@ -65,16 +41,16 @@ set_error(void)
 
 
 static PyObject*
-sock_ioctl(PySocketSockObject *s , PyObject *arg)
+sock_ioctl(PyObject *argO , PyObject *arg)
 {
-	PyObject *argO;
+	PyObject *s;
 	DWORD recv;
 	struct tcp_keepalive ka;
-	if (!PyArg_ParseTuple(arg, "O(kkk):keepalive",&argO,
+	if (!PyArg_ParseTuple(arg, "O(kkk):keepalive",&s,
 		&ka.onoff, &ka.keepalivetime, &ka.keepaliveinterval))
 		return NULL;
 
-	if (WSAIoctl(PyObject_AsFileDescriptor(argO), SIO_KEEPALIVE_VALS, &ka, sizeof(ka),
+	if (WSAIoctl(PyObject_AsFileDescriptor(s), SIO_KEEPALIVE_VALS, &ka, sizeof(ka),
 		NULL, 0, &recv, NULL, NULL) == SOCKET_ERROR) {
 		return set_error();
 	}
