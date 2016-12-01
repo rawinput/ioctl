@@ -1,8 +1,11 @@
 # ioctl 
 
 the ioctl.pyd is your module put it into your project
+
 build :
+
 	path/to/python.exe setup.py build -c mingw32
+	
 usage :
 
 	import ioctl
