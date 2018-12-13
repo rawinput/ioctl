@@ -14,9 +14,3 @@ usage :
 	r = ioctl.keepalive(s,(1, 10000, 3000))
 	
 	
-
-
-
-jackintosh7
-BotInitiative
-
